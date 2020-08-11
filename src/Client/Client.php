@@ -7,6 +7,8 @@
 
 namespace HuuLe\AmazonSDK\Client;
 
+include_once('../AmazonMWS/AmazonAutoLoader.php');
+
 use HuuLe\AmazonSDK\Constant as Constant;
 
 class Client
