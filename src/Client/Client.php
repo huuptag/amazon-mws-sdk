@@ -7,7 +7,7 @@
 
 namespace HuuLe\AmazonSDK\Client;
 
-include_once('../AmazonMWS/AmazonAutoLoader.php');
+include_once(__DIR__ . '/../AmazonMWS/AmazonAutoLoader.php');
 
 use HuuLe\AmazonSDK\Constant as Constant;
 
@@ -16,20 +16,76 @@ class Client
     private $wmsAccessKeyID;
     private $wmsSecretAccessKey;
     private $config;
-    private $applicationName = Constant::WMS_APPLICATION_NAME;
-    private $applicationVersion = Constant::WMS_APPLICATION_VERSION;
+    private $applicationName = Constant::MWS_APPLICATION_NAME;
+    private $applicationVersion = Constant::MWS_APPLICATION_VERSION;
+
+    private $className;
+    private $serviceFolder;
+    private $requestName;
+
+    const RequestClassFormat = '%s_Model_%sRequest';
+    const ResponseClassFormat = '%s_Model_%sResponse';
 
     /**
      * Client constructor.
+     * @param string $className
      * @param string $wmsAccessKeyID
      * @param string $wmsSecretAccessKey
      * @param array $config
      */
-    public function __construct($wmsAccessKeyID, $wmsSecretAccessKey, $config)
+    public function __construct($className, $wmsAccessKeyID, $wmsSecretAccessKey, $config)
     {
         $this->wmsAccessKeyID = $wmsAccessKeyID;
         $this->wmsSecretAccessKey = $wmsSecretAccessKey;
         $this->config = $config;
+        $this->className = $className;
+        $this->serviceFolder = str_replace('_Client', '', $className);
+    }
+
+    /**
+     * @return string
+     */
+    public function getClassName()
+    {
+        return $this->className;
+    }
+
+    /**
+     * @return string|string[]
+     */
+    public function getServiceFolder()
+    {
+        return $this->serviceFolder;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRequestName()
+    {
+        return $this->requestName;
+    }
+
+    /**
+     * Get Request Class function
+     * @param string $requestName
+     * @return string
+     * @author HuuLe
+     */
+    public function getRequestClass($requestName)
+    {
+        $this->requestName = $requestName;
+        return sprintf(self::RequestClassFormat, $this->getServiceFolder(), $requestName);
+    }
+
+    /**
+     * Get Response Class function
+     * @return string
+     * @author HuuLe
+     */
+    public function getResponseClass()
+    {
+        return sprintf(self::ResponseClassFormat, $this->getServiceFolder(), $this->getRequestName());
     }
 
     /**

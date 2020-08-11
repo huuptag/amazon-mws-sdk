@@ -11,7 +11,9 @@
     ],
     "minimum-stability": "dev",
     "prefer-stable": true,
-    "require": {},
+    "require": {
+        "ext-iconv": "*"
+    },
     "autoload": {
         "psr-4": {
             "HuuLe\\AmazonSDK\\": "src/"

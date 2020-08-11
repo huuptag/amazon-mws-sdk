@@ -8,6 +8,7 @@ namespace HuuLe\AmazonSDK;
 
 class Constant
 {
-    const  WMS_APPLICATION_NAME = '<Your Application Name>';
-    const  WMS_APPLICATION_VERSION = '<Your Application Version or Build Number>';
+    const MWS_APPLICATION_NAME = 'HuuLe Amazon SDK';
+    const MWS_APPLICATION_VERSION = '1.0';
+    const MWS_ATE_FORMAT = 'Y-m-d\TH:i:s\Z';
 }

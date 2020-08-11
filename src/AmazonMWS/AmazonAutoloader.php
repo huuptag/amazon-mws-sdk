@@ -28,7 +28,7 @@ set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__);
  * be loaded even when this function is removed
  ***********************************************************************/
 spl_autoload_register(function ($className) {
-    if (strpos($className, 'MarketplaceWebService') === false) {
+    if (strpos($className, 'MarketplaceWebService') !== false) {
         $filePath = str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
         require_once $filePath;
     }
