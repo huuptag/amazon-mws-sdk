@@ -1,0 +1,19 @@
+{
+    "name": "huule/amazon-sdk",
+    "description": "Amazon SDK",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "huule",
+            "email": "huuptag@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "HuuLe\\AmazonSDK\\": "src/"
+        }
+    }
+}
