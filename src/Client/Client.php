@@ -9,37 +9,61 @@ namespace HuuLe\AmazonSDK\Client;
 
 include_once(__DIR__ . '/../AmazonMWS/AmazonAutoLoader.php');
 
-use HuuLe\AmazonSDK\Constant as Constant;
+use HuuLe\AmazonSDK\Constant;
+use HuuLe\AmazonSDK\Helpers;
+use HuuLe\AmazonSDK\RequestMaker;
+use HuuLe\AmazonSDK\ResponseParser;
 
-class Client
+abstract class Client
 {
-    private $wmsAccessKeyID;
-    private $wmsSecretAccessKey;
+    use RequestMaker, ResponseParser, Helpers;
+
+    private $mwsAccessKeyID;
+    private $mwsSecretAccessKey;
+    private $merchant;
+    private $MWSAuthToken;
     private $config;
     private $applicationName = Constant::MWS_APPLICATION_NAME;
     private $applicationVersion = Constant::MWS_APPLICATION_VERSION;
 
     private $className;
     private $serviceFolder;
-    private $requestName;
+    private $data;
+    private $response;
+    private $nextToken;
+    private $error;
 
     const RequestClassFormat = '%s_Model_%sRequest';
-    const ResponseClassFormat = '%s_Model_%sResponse';
 
     /**
      * Client constructor.
      * @param string $className
-     * @param string $wmsAccessKeyID
-     * @param string $wmsSecretAccessKey
+     * @param string $mwsAccessKeyID
+     * @param string $mwsSecretAccessKey
      * @param array $config
      */
-    public function __construct($className, $wmsAccessKeyID, $wmsSecretAccessKey, $config)
+    public function __construct($className, $mwsAccessKeyID, $mwsSecretAccessKey, $config)
     {
-        $this->wmsAccessKeyID = $wmsAccessKeyID;
-        $this->wmsSecretAccessKey = $wmsSecretAccessKey;
-        $this->config = $config;
+        $this->mwsAccessKeyID = $mwsAccessKeyID;
+        $this->mwsSecretAccessKey = $mwsSecretAccessKey;
+        $this->config = $this->checkConfig($config);
         $this->className = $className;
         $this->serviceFolder = str_replace('_Client', '', $className);
+    }
+
+    /**
+     * Default Config function
+     * @param array $config
+     * @return array
+     * @author HuuLe
+     */
+    public function checkConfig($config)
+    {
+        if (!is_array($config))
+            $config = [];
+        if (empty($config['ServiceURL']))
+            $config['ServiceURL'] = Constant::MWS_SERVICE_URL;
+        return $config;
     }
 
     /**
@@ -59,14 +83,6 @@ class Client
     }
 
     /**
-     * @return mixed
-     */
-    public function getRequestName()
-    {
-        return $this->requestName;
-    }
-
-    /**
      * Get Request Class function
      * @param string $requestName
      * @return string
@@ -74,34 +90,39 @@ class Client
      */
     public function getRequestClass($requestName)
     {
-        $this->requestName = $requestName;
         return sprintf(self::RequestClassFormat, $this->getServiceFolder(), $requestName);
     }
 
     /**
-     * Get Response Class function
-     * @return string
-     * @author HuuLe
+     * @return mixed
      */
-    public function getResponseClass()
+    public function getMwsAccessKeyID()
     {
-        return sprintf(self::ResponseClassFormat, $this->getServiceFolder(), $this->getRequestName());
+        return $this->mwsAccessKeyID;
     }
 
     /**
      * @return mixed
      */
-    public function getWmsAccessKeyID()
+    public function getMwsSecretAccessKey()
     {
-        return $this->wmsAccessKeyID;
+        return $this->mwsSecretAccessKey;
     }
 
     /**
      * @return mixed
      */
-    public function getWmsSecretAccessKey()
+    public function getMerchant()
     {
-        return $this->wmsSecretAccessKey;
+        return $this->merchant;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMWSAuthToken()
+    {
+        return $this->MWSAuthToken;
     }
 
     /**
@@ -129,19 +150,77 @@ class Client
     }
 
     /**
-     * @param mixed $wmsAccessKeyID
+     * @return mixed
      */
-    public function setWmsAccessKeyID($wmsAccessKeyID)
+    public function getData()
     {
-        $this->wmsAccessKeyID = $wmsAccessKeyID;
+        return $this->data;
     }
 
     /**
-     * @param mixed $wmsSecretAccessKey
+     * @return object
      */
-    public function setWmsSecretAccessKey($wmsSecretAccessKey)
+    public function getResponse()
     {
-        $this->wmsSecretAccessKey = $wmsSecretAccessKey;
+        return $this->response;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNextToken()
+    {
+        return $this->nextToken;
+    }
+
+    /**
+     * @return \Exception
+     */
+    public function getError()
+    {
+        return $this->error;
+    }
+
+    /**
+     * Has Error function
+     * @return bool
+     * @author HuuLe
+     */
+    public function hasError()
+    {
+        return !empty($this->error);
+    }
+
+    /**
+     * @param mixed $mwsAccessKeyID
+     */
+    public function setMwsAccessKeyID($mwsAccessKeyID)
+    {
+        $this->mwsAccessKeyID = $mwsAccessKeyID;
+    }
+
+    /**
+     * @param mixed $mwsSecretAccessKey
+     */
+    public function setMwsSecretAccessKey($mwsSecretAccessKey)
+    {
+        $this->mwsSecretAccessKey = $mwsSecretAccessKey;
+    }
+
+    /**
+     * @param mixed $merchant
+     */
+    public function setMerchant($merchant)
+    {
+        $this->merchant = $merchant;
+    }
+
+    /**
+     * @param mixed $MWSAuthToken
+     */
+    public function setMWSAuthToken($MWSAuthToken)
+    {
+        $this->MWSAuthToken = $MWSAuthToken;
     }
 
     /**
@@ -166,5 +245,37 @@ class Client
     public function setApplicationVersion($applicationVersion)
     {
         $this->applicationVersion = $applicationVersion;
+    }
+
+    /**
+     * @param mixed $data
+     */
+    protected function setData($data)
+    {
+        $this->data = $data;
+    }
+
+    /**
+     * @param mixed $response
+     */
+    protected function setResponse($response)
+    {
+        $this->response = $response;
+    }
+
+    /**
+     * @param mixed $nextToken
+     */
+    protected function setNextToken($nextToken)
+    {
+        $this->nextToken = $nextToken;
+    }
+
+    /**
+     * @param mixed $error
+     */
+    protected function setError($error)
+    {
+        $this->error = $error;
     }
 }
