@@ -10,13 +10,14 @@ namespace HuuLe\AmazonSDK\Client;
 include_once(__DIR__ . '/../AmazonMWS/AmazonAutoLoader.php');
 
 use HuuLe\AmazonSDK\Constant;
+use HuuLe\AmazonSDK\RequestErrors;
 use HuuLe\AmazonSDK\Helpers;
 use HuuLe\AmazonSDK\RequestMaker;
 use HuuLe\AmazonSDK\ResponseParser;
 
-abstract class Client
+class Client
 {
-    use RequestMaker, ResponseParser, Helpers;
+    use RequestMaker, ResponseParser, Helpers, RequestErrors;
 
     private $mwsAccessKeyID;
     private $mwsSecretAccessKey;
@@ -49,21 +50,6 @@ abstract class Client
         $this->config = $this->checkConfig($config);
         $this->className = $className;
         $this->serviceFolder = str_replace('_Client', '', $className);
-    }
-
-    /**
-     * Default Config function
-     * @param array $config
-     * @return array
-     * @author HuuLe
-     */
-    public function checkConfig($config)
-    {
-        if (!is_array($config))
-            $config = [];
-        if (empty($config['ServiceURL']))
-            $config['ServiceURL'] = Constant::MWS_SERVICE_URL;
-        return $config;
     }
 
     /**
@@ -277,5 +263,20 @@ abstract class Client
     protected function setError($error)
     {
         $this->error = $error;
+    }
+
+    /**
+     * Default Config function
+     * @param array $config
+     * @return array
+     * @author HuuLe
+     */
+    public function checkConfig($config)
+    {
+        if (!is_array($config))
+            $config = [];
+        if (empty($config['ServiceURL']))
+            $config['ServiceURL'] = Constant::MWS_SERVICE_URL;
+        return $config;
     }
 }

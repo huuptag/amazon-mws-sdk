@@ -10,7 +10,7 @@ trait ResponseParser
 {
     /**
      * To Array function
-     * @param array $dataList
+     * @param array|object $dataList
      * @return array
      * @author HuuLe
      */

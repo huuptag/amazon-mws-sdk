@@ -6,7 +6,9 @@
 
 namespace HuuLe\AmazonSDK\Client;
 
-class MWSClient extends Client implements \MarketplaceWebService_Interface
+use HuuLe\AmazonSDK\ResultInterface;
+
+class MWSClient extends Client implements \MarketplaceWebService_Interface, ResultInterface
 {
     protected $client;
 
@@ -26,6 +28,16 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
             $this->getApplicationName(),
             $this->getApplicationVersion()
         );
+    }
+
+    /**
+     * Return Data function
+     * @return MWSClient
+     * @author HuuLe
+     */
+    public function cloneThis()
+    {
+        return clone $this;
     }
 
     /**
@@ -65,7 +77,7 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
         } catch (\MarketplaceWebService_Exception $ex) {
             $this->setError($ex);
         }
-        return $this;
+        return $this->cloneThis();
     }
 
     /**
@@ -98,7 +110,45 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
         } catch (\MarketplaceWebService_Exception $ex) {
             $this->setError($ex);
         }
-        return $this;
+        return $this->cloneThis();
+    }
+
+    /**
+     * Get Report List by Next Token function
+     * @param string $nextToken
+     * @return MWSClient
+     * @author HuuLe
+     */
+    public function getReportListByNextToken($nextToken)
+    {
+        try {
+            if ($nextToken) {
+                $request = $this->makeRequest([
+                    'NextToken' => $nextToken
+                ]);
+                if ($request instanceof \MarketplaceWebService_Model_GetReportListByNextTokenRequest) {
+                    $response = $this->client->getReportListByNextToken($request);
+                    $this->setResponse($response);
+                    if ($response->isSetGetReportListByNextTokenResult()) {
+                        // Check result
+                        $getReportListResult = $response->getGetReportListByNextTokenResult();
+                        if ($getReportListResult instanceof \MarketplaceWebService_Model_GetReportListByNextTokenResult)
+                            if ($getReportListResult->isSetReportInfo()) {
+                                $requestList = $getReportListResult->getReportInfoList();
+                                $this->setData($this->toArray($requestList));
+                            }
+                        // Check next token
+                        if ($getReportListResult->isSetNextToken())
+                            $this->setNextToken($getReportListResult->getNextToken());
+                    }
+                } else
+                    $this->setWrongRequestTypeError();
+            } else
+                $this->setMissingNextTokenError();
+        } catch (\MarketplaceWebService_Exception $ex) {
+            $this->setError($ex);
+        }
+        return $this->cloneThis();
     }
 
     /**
@@ -109,8 +159,48 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
      */
     public function getReportCount($parameters)
     {
-        // TODO: Implement getReportCount() method.
-        return $this;
+        try {
+            $request = $this->makeRequest($parameters);
+            if ($request instanceof \MarketplaceWebService_Model_GetReportCountRequest) {
+                $response = $this->client->getReportCount($request);
+                $this->setResponse($response);
+                if ($response->isSetGetReportCountResult()) {
+                    // Check result
+                    $getReportListResult = $response->getGetReportCountResult();
+                    if ($getReportListResult instanceof \MarketplaceWebService_Model_GetReportCountResult &&
+                        $getReportListResult->isSetCount()) {
+                        $this->setData($getReportListResult->getCount());
+                    }
+                }
+            } else
+                $this->setWrongRequestTypeError();
+        } catch (\MarketplaceWebService_Exception $ex) {
+            $this->setError($ex);
+        }
+        return $this->cloneThis();
+    }
+
+    /**
+     * Get Report By Request ID And Type function
+     * @param string $reportRequestID
+     * @param string $reportType
+     * @return MWSClient
+     * @author HuuLe
+     */
+    public function getReportByRequestIDAndType($reportRequestID, $reportType)
+    {
+        $reportListResult = $this->getReportList([
+            'MaxCount' => 1,
+            'ReportRequestIdList' => [
+                'Id' => $reportRequestID
+            ],
+            'ReportTypeList' => [
+                'Type' => $reportType
+            ]
+        ]);
+        if ($reportListResult->getData() && !empty($reportListResult->getData()[0]))
+            $this->setData($reportListResult->getData()[0]);
+        return $this->cloneThis();
     }
 
     /**
@@ -146,37 +236,43 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
         } catch (\MarketplaceWebService_Exception $ex) {
             $this->setError($ex);
         }
-        return $this;
+        return $this->cloneThis();
     }
 
     /**
      * Get Report Request List By Next Token function
-     * @param array $parameters
+     * @param string $nextToken
      * @return MWSClient
      * @author HuuLe
      */
-    public function getReportRequestListByNextToken($parameters)
+    public function getReportRequestListByNextToken($nextToken)
     {
         try {
-            $request = $this->makeRequest($parameters);
-            if ($request instanceof \MarketplaceWebService_Model_GetReportRequestListByNextTokenRequest) {
-                $response = $this->client->getReportRequestListByNextToken($request);
-                if ($response->isSetGetReportRequestListByNextTokenResult()) {
-                    $getReportRequestListByNextTokenResult = $response->getGetReportRequestListByNextTokenResult();
-                    if ($getReportRequestListByNextTokenResult instanceof \MarketplaceWebService_Model_GetReportRequestListByNextTokenResult) {
-                        $requestList = $getReportRequestListByNextTokenResult->getReportRequestInfoList();
-                        $this->setData($this->toArray($requestList));
+            if ($nextToken) {
+                $request = $this->makeRequest([
+                    'NextToken' => $nextToken
+                ]);
+                if ($request instanceof \MarketplaceWebService_Model_GetReportRequestListByNextTokenRequest) {
+                    $response = $this->client->getReportRequestListByNextToken($request);
+                    $this->setResponse($response);
+                    if ($response->isSetGetReportRequestListByNextTokenResult()) {
+                        $getReportRequestListByNextTokenResult = $response->getGetReportRequestListByNextTokenResult();
+                        if ($getReportRequestListByNextTokenResult instanceof \MarketplaceWebService_Model_GetReportRequestListByNextTokenResult) {
+                            $requestList = $getReportRequestListByNextTokenResult->getReportRequestInfoList();
+                            $this->setData($this->toArray($requestList));
+                        }
+                        // Check next token
+                        if ($getReportRequestListByNextTokenResult->isSetNextToken())
+                            $this->setNextToken($getReportRequestListByNextTokenResult->getNextToken());
                     }
-                    // Check next token
-                    if ($getReportRequestListByNextTokenResult->isSetNextToken())
-                        $this->setNextToken($getReportRequestListByNextTokenResult->getNextToken());
-                }
+                } else
+                    $this->setWrongRequestTypeError();
             } else
-                $this->setWrongRequestTypeError();
+                $this->setMissingNextTokenError();
         } catch (\MarketplaceWebService_Exception $ex) {
             $this->setError($ex);
         }
-        return $this;
+        return $this->cloneThis();
     }
 
     /**
@@ -187,8 +283,24 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
      */
     public function getReportRequestCount($parameters)
     {
-        // TODO: Implement getReportRequestCount() method.
-        return $this;
+        try {
+            $request = $this->makeRequest($parameters);
+            if ($request instanceof \MarketplaceWebService_Model_GetReportRequestCountRequest) {
+                $response = $this->client->getReportRequestCount($request);
+                $this->setResponse($response);
+                if ($response->isSetGetReportRequestCountResult()) {
+                    $getReportRequestCountResult = $response->getGetReportRequestCountResult();
+                    if ($getReportRequestCountResult instanceof \MarketplaceWebService_Model_GetReportRequestCountResult &&
+                        $getReportRequestCountResult->isSetCount()) {
+                        $this->setData($getReportRequestCountResult->getCount());
+                    }
+                }
+            } else
+                $this->setWrongRequestTypeError();
+        } catch (\MarketplaceWebService_Exception $ex) {
+            $this->setError($ex);
+        }
+        return $this->cloneThis();
     }
 
     /**
@@ -199,8 +311,25 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
      */
     public function requestReport($parameters)
     {
-        // TODO: Implement requestReport() method.
-        return $this;
+        try {
+            $request = $this->makeRequest($parameters);
+            if ($request instanceof \MarketplaceWebService_Model_RequestReportRequest) {
+                $response = $this->client->requestReport($request);
+                $this->setResponse($response);
+                if ($response->isSetRequestReportResult()) {
+                    $requestReportResult = $response->getRequestReportResult();
+                    if ($requestReportResult instanceof \MarketplaceWebService_Model_RequestReportResult &&
+                        $requestReportResult->isSetReportRequestInfo()) {
+                        $reportRequestInfo = $requestReportResult->getReportRequestInfo();
+                        $this->setData($this->toArray($reportRequestInfo));
+                    }
+                }
+            } else
+                $this->setWrongRequestTypeError();
+        } catch (\MarketplaceWebService_Exception $ex) {
+            $this->setError($ex);
+        }
+        return $this->cloneThis();
     }
 
     /**
@@ -211,8 +340,24 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
      */
     public function cancelReportRequests($parameters)
     {
-        // TODO: Implement cancelReportRequests() method.
-        return $this;
+        try {
+            $request = $this->makeRequest($parameters);
+            if ($request instanceof \MarketplaceWebService_Model_CancelReportRequestsRequest) {
+                $response = $this->client->cancelReportRequests($request);
+                $this->setResponse($response);
+                if ($response->isSetCancelReportRequestsResult()) {
+                    $requestReportResult = $response->getCancelReportRequestsResult();
+                    if ($requestReportResult instanceof \MarketplaceWebService_Model_CancelReportRequestsResult &&
+                        $requestReportResult->isSetCount()) {
+                        $this->setData($requestReportResult->getCount());
+                    }
+                }
+            } else
+                $this->setWrongRequestTypeError();
+        } catch (\MarketplaceWebService_Exception $ex) {
+            $this->setError($ex);
+        }
+        return $this->cloneThis();
     }
 
     /**
@@ -226,8 +371,61 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
      */
     public function getReportScheduleList($parameters)
     {
-        // TODO: Implement getReportScheduleList() method.
-        return $this;
+        try {
+            $request = $this->makeRequest($parameters);
+            if ($request instanceof \MarketplaceWebService_Model_GetReportScheduleListRequest) {
+                $response = $this->client->getReportScheduleList($request);
+                $this->setResponse($response);
+                if ($response->isSetGetReportScheduleListResult()) {
+                    $getReportScheduleListResult = $response->getGetReportScheduleListResult();
+                    if ($getReportScheduleListResult instanceof \MarketplaceWebService_Model_GetReportScheduleListResult &&
+                        $getReportScheduleListResult->isSetReportSchedule()) {
+                        $reportScheduleList = $getReportScheduleListResult->getReportScheduleList();
+                        $this->setData($this->toArray($reportScheduleList));
+                        // Check next token
+                        if ($getReportScheduleListResult->isSetNextToken())
+                            $this->setNextToken($getReportScheduleListResult->getNextToken());
+                    }
+                }
+            } else
+                $this->setWrongRequestTypeError();
+        } catch (\MarketplaceWebService_Exception $ex) {
+            $this->setError($ex);
+        }
+        return $this->cloneThis();
+    }
+
+    /**
+     * Get Request Report function
+     * @param string $nextToken
+     * @return MWSClient
+     * @author HuuLe
+     */
+    public function getReportScheduleListByNextToken($nextToken)
+    {
+        try {
+            $request = $this->makeRequest([
+                'NextToken' => $nextToken
+            ]);
+            if ($request instanceof \MarketplaceWebService_Model_GetReportScheduleListByNextTokenRequest) {
+                $response = $this->client->getReportScheduleListByNextToken($request);
+                $this->setResponse($response);
+                if ($response->isSetGetReportScheduleListByNextTokenResult()) {
+                    $getReportScheduleListByNextTokenResult = $response->getGetReportScheduleListByNextTokenResult();
+                    if ($getReportScheduleListByNextTokenResult instanceof \MarketplaceWebService_Model_GetReportScheduleListByNextTokenResult &&
+                        $getReportScheduleListByNextTokenResult->isSetReportSchedule()) {
+                        $reportScheduleList = $getReportScheduleListByNextTokenResult->getReportScheduleList();
+                        $this->setData($this->toArray($reportScheduleList));
+                        // Check next token
+                        if ($getReportScheduleListByNextTokenResult->isSetNextToken())
+                            $this->setNextToken($getReportScheduleListByNextTokenResult->getNextToken());
+                    }
+                }
+            }
+        } catch (\MarketplaceWebService_Exception $ex) {
+            $this->setError($ex);
+        }
+        return $this->cloneThis();
     }
 
     /**
@@ -255,31 +453,7 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
         } catch (\MarketplaceWebService_Exception $ex) {
             $this->setError($ex);
         }
-        return $this;
-    }
-
-    /**
-     * Get Request Report function
-     * @param array $parameters
-     * @return MWSClient
-     * @author HuuLe
-     */
-    public function getReportScheduleListByNextToken($parameters)
-    {
-        // TODO: Implement getReportScheduleListByNextToken() method.
-        return $this;
-    }
-
-    /**
-     * Get Request Report function
-     * @param array $parameters
-     * @return MWSClient
-     * @author HuuLe
-     */
-    public function getReportListByNextToken($parameters)
-    {
-        // TODO: Implement getReportListByNextToken() method.
-        return $this;
+        return $this->cloneThis();
     }
 
     /**
@@ -291,7 +465,7 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
     public function manageReportSchedule($parameters)
     {
         // TODO: Implement manageReportSchedule() method.
-        return $this;
+        return $this->cloneThis();
     }
 
     /**
@@ -303,7 +477,7 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
     public function updateReportAcknowledgements($parameters)
     {
         // TODO: Implement updateReportAcknowledgements() method.
-        return $this;
+        return $this->cloneThis();
     }
 
     /**
@@ -318,7 +492,7 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
     public function getFeedSubmissionList($parameters)
     {
         // TODO: Implement getFeedSubmissionList() method.
-        return $this;
+        return $this->cloneThis();
     }
 
     /**
@@ -330,7 +504,7 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
     public function getFeedSubmissionListByNextToken($parameters)
     {
         // TODO: Implement getFeedSubmissionListByNextToken() method.
-        return $this;
+        return $this->cloneThis();
     }
 
     /**
@@ -342,7 +516,7 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
     public function getFeedSubmissionCount($parameters)
     {
         // TODO: Implement getFeedSubmissionCount() method.
-        return $this;
+        return $this->cloneThis();
     }
 
     /**
@@ -354,7 +528,7 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
     public function getFeedSubmissionResult($parameters)
     {
         // TODO: Implement getFeedSubmissionResult() method.
-        return $this;
+        return $this->cloneThis();
     }
 
     /**
@@ -366,7 +540,7 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
     public function submitFeed($parameters)
     {
         // TODO: Implement submitFeed() method.
-        return $this;
+        return $this->cloneThis();
     }
 
     /**
@@ -378,6 +552,6 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
     public function cancelFeedSubmissions($parameters)
     {
         // TODO: Implement cancelFeedSubmissions() method.
-        return $this;
+        return $this->cloneThis();
     }
 }

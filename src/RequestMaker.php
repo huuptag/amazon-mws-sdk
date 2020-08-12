@@ -28,25 +28,12 @@ trait RequestMaker
                 $parameters['Merchant'] = $this->getMerchant();
             if ($this->getMWSAuthToken())
                 $parameters['MWSAuthToken'] = $this->getMWSAuthToken();
-            if (class_exists($requestClass))
+            if (class_exists($requestClass)) {
+                // Clear data for new request
+                $this->setData('');
                 return new $requestClass($parameters);
+            }
         }
         return null;
-    }
-
-    /**
-     * Set Wrong Request Type Error function
-     * @return void
-     * @author HuuLe
-     */
-    function setWrongRequestTypeError()
-    {
-        if (Constant::MWS_DEBUG) {
-            $requestName = '';
-            $caller = debug_backtrace();
-            if (!empty($caller[1]['function']))
-                $requestName = ucfirst($caller[1]['function']);
-            $this->setError(new \Exception('Wrong request type' . ($requestName ? ' for ' . $requestName . ' function' : '') . '.'));
-        }
     }
 }
