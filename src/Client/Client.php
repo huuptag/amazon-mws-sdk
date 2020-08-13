@@ -10,14 +10,14 @@ namespace HuuLe\AmazonSDK\Client;
 include_once(__DIR__ . '/../AmazonMWS/AmazonAutoLoader.php');
 
 use HuuLe\AmazonSDK\Constant;
-use HuuLe\AmazonSDK\RequestErrors;
+use HuuLe\AmazonSDK\Errors;
 use HuuLe\AmazonSDK\Helpers;
-use HuuLe\AmazonSDK\RequestMaker;
+use HuuLe\AmazonSDK\Request;
 use HuuLe\AmazonSDK\ResponseParser;
 
 class Client
 {
-    use RequestMaker, ResponseParser, Helpers, RequestErrors;
+    use Request, ResponseParser, Helpers, Errors;
 
     private $mwsAccessKeyID;
     private $mwsSecretAccessKey;
@@ -29,10 +29,6 @@ class Client
 
     private $className;
     private $serviceFolder;
-    private $data;
-    private $response;
-    private $nextToken;
-    private $error;
 
     const RequestClassFormat = '%s_Model_%sRequest';
 
@@ -136,48 +132,6 @@ class Client
     }
 
     /**
-     * @return mixed
-     */
-    public function getData()
-    {
-        return $this->data;
-    }
-
-    /**
-     * @return object
-     */
-    public function getResponse()
-    {
-        return $this->response;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getNextToken()
-    {
-        return $this->nextToken;
-    }
-
-    /**
-     * @return \Exception
-     */
-    public function getError()
-    {
-        return $this->error;
-    }
-
-    /**
-     * Has Error function
-     * @return bool
-     * @author HuuLe
-     */
-    public function hasError()
-    {
-        return !empty($this->error);
-    }
-
-    /**
      * @param mixed $mwsAccessKeyID
      */
     public function setMwsAccessKeyID($mwsAccessKeyID)
@@ -231,38 +185,6 @@ class Client
     public function setApplicationVersion($applicationVersion)
     {
         $this->applicationVersion = $applicationVersion;
-    }
-
-    /**
-     * @param mixed $data
-     */
-    protected function setData($data)
-    {
-        $this->data = $data;
-    }
-
-    /**
-     * @param mixed $response
-     */
-    protected function setResponse($response)
-    {
-        $this->response = $response;
-    }
-
-    /**
-     * @param mixed $nextToken
-     */
-    protected function setNextToken($nextToken)
-    {
-        $this->nextToken = $nextToken;
-    }
-
-    /**
-     * @param mixed $error
-     */
-    protected function setError($error)
-    {
-        $this->error = $error;
     }
 
     /**

@@ -6,7 +6,7 @@
 
 namespace HuuLe\AmazonSDK;
 
-trait RequestErrors
+trait Errors
 {
     function throwError($message)
     {

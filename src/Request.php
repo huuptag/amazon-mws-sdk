@@ -10,12 +10,13 @@ namespace HuuLe\AmazonSDK;
  * Trait RequestMaker
  * @package HuuLe\AmazonSDK
  */
-trait RequestMaker
+trait Request
 {
     /**
      * Make Amazon MWS Request
      * @param array $parameters
-     * @return mixed|null
+     * @param callable $callback
+     * @return object|void
      * @author HuuLe
      */
     function makeRequest($parameters = [])
@@ -28,12 +29,9 @@ trait RequestMaker
                 $parameters['Merchant'] = $this->getMerchant();
             if ($this->getMWSAuthToken())
                 $parameters['MWSAuthToken'] = $this->getMWSAuthToken();
-            if (class_exists($requestClass)) {
-                // Clear data for new request
-                $this->setData('');
+            if (class_exists($requestClass))
                 return new $requestClass($parameters);
-            }
         }
-        return null;
+        return;
     }
 }
