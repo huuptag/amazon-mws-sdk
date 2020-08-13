@@ -8,18 +8,6 @@ namespace HuuLe\AmazonSDK\Client;
 
 use HuuLe\AmazonSDK\Result;
 
-function dd(...$params)
-{
-    $caller = debug_backtrace();
-    foreach ($params as $param) {
-        echo "<pre>";
-        print_r($param);
-        echo "</pre>";
-    }
-    echo "<div><strong>Called from</strong> " . $caller[0]['file'] . " in line " . $caller[0]['line'] . '</div>';
-    die;
-}
-
 class MWSClient extends Client implements \MarketplaceWebService_Interface
 {
     protected $client;
@@ -40,16 +28,6 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
             $this->getApplicationName(),
             $this->getApplicationVersion()
         );
-    }
-
-    /**
-     * Return Data function
-     * @return MWSClient
-     * @author HuuLe
-     */
-    public function cloneThis()
-    {
-        return clone $this;
     }
 
     /**
@@ -86,8 +64,10 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
                         $getReportResult->getContentMd5();
                     // Get stream data to write file
                     $reportResource = $request->getReport();
-                    if (is_resource($reportResource))
+                    if (is_resource($reportResource)) {
                         $result->setData(stream_get_contents($reportResource));
+                        @fclose($reportResource);
+                    }
                 }
             } else
                 $result->setWrongRequestTypeError();
@@ -521,13 +501,34 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
     /**
      * Get Request Report function
      * @param array $parameters
-     * @return MWSClient
+     * @return Result
      * @author HuuLe
      */
     public function updateReportAcknowledgements($parameters)
     {
         $result = new Result();
-        return $this->cloneThis();
+        try {
+            $request = $this->makeRequest($parameters);
+            if ($request instanceof \MarketplaceWebService_Model_UpdateReportAcknowledgementsRequest) {
+                $response = $this->client->updateReportAcknowledgements($request);
+                $result->setResponse($response);
+                if ($response->isSetUpdateReportAcknowledgementsResult()) {
+                    $updateReportAcknowledgementsResult = $response->getUpdateReportAcknowledgementsResult();
+                    if ($updateReportAcknowledgementsResult instanceof \MarketplaceWebService_Model_UpdateReportAcknowledgementsResult) {
+                        $data = [];
+                        if ($updateReportAcknowledgementsResult->isSetCount())
+                            $data['Count'] = $updateReportAcknowledgementsResult->getCount();
+                        if ($updateReportAcknowledgementsResult->isSetReportInfo())
+                            $data['ReportInfo'] = $this->toArray($updateReportAcknowledgementsResult->getReportInfoList());
+                        $result->setData($data);
+                    }
+                }
+            } else
+                $result->setWrongRequestTypeError();
+        } catch (\MarketplaceWebService_Exception $ex) {
+            $result->setError($ex);
+        }
+        return $result;
     }
 
     /**
@@ -536,72 +537,223 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
     /**
      * Get Request Report function
      * @param array $parameters
-     * @return MWSClient
+     * @return Result
      * @author HuuLe
      */
     public function getFeedSubmissionList($parameters)
     {
-        // TODO: Implement getFeedSubmissionList() method.
-        return $this->cloneThis();
+        $result = new Result();
+        try {
+            $request = $this->makeRequest($parameters);
+            if ($request instanceof \MarketplaceWebService_Model_GetFeedSubmissionListRequest) {
+                $response = $this->client->getFeedSubmissionList($request);
+                $result->setResponse($response);
+                if ($response->isSetGetFeedSubmissionListResult()) {
+                    $getFeedSubmissionListResult = $response->getGetFeedSubmissionListResult();
+                    if ($getFeedSubmissionListResult instanceof \MarketplaceWebService_Model_GetFeedSubmissionListResult &&
+                        $getFeedSubmissionListResult->isSetFeedSubmissionInfo())
+                        $result->setData($this->toArray($getFeedSubmissionListResult->getFeedSubmissionInfoList()));
+                    if ($getFeedSubmissionListResult->isSetNextToken())
+                        $result->setNextToken($getFeedSubmissionListResult->getNextToken());
+                }
+            } else
+                $result->setWrongRequestTypeError();
+        } catch (\MarketplaceWebService_Exception $ex) {
+            $result->setError($ex);
+        }
+        return $result;
     }
 
     /**
-     * Get Request Report function
-     * @param array $parameters
-     * @return MWSClient
+     * Get Feed Submission List By Next Token function
+     * @param string $nextToken
+     * @return Result
      * @author HuuLe
      */
-    public function getFeedSubmissionListByNextToken($parameters)
+    public function getFeedSubmissionListByNextToken($nextToken)
     {
-        // TODO: Implement getFeedSubmissionListByNextToken() method.
-        return $this->cloneThis();
+        $result = new Result();
+        try {
+            if ($nextToken) {
+                $request = $this->makeRequest([
+                    'NextToken' => $nextToken
+                ]);
+                if ($request instanceof \MarketplaceWebService_Model_GetFeedSubmissionListByNextTokenRequest) {
+                    $response = $this->client->getFeedSubmissionListByNextToken($request);
+                    $result->setResponse($response);
+                    if ($response->isSetGetFeedSubmissionListByNextTokenResult()) {
+                        $getFeedSubmissionListByNextToken = $response->getGetFeedSubmissionListByNextTokenResult();
+                        if ($getFeedSubmissionListByNextToken instanceof \MarketplaceWebService_Model_GetFeedSubmissionListByNextTokenResult &&
+                            $getFeedSubmissionListByNextToken->isSetFeedSubmissionInfo())
+                            $result->setData($this->toArray($getFeedSubmissionListByNextToken->getFeedSubmissionInfoList()));
+                        if ($getFeedSubmissionListByNextToken->isSetNextToken())
+                            $result->setNextToken($getFeedSubmissionListByNextToken->getNextToken());
+                    }
+                } else
+                    $result->setWrongRequestTypeError();
+            } else
+                $result->setMissingNextTokenError();
+        } catch (\MarketplaceWebService_Exception $ex) {
+            $result->setError($ex);
+        }
+        return $result;
     }
 
     /**
-     * Get Request Report function
+     * Get Feed Submission Count function
      * @param array $parameters
-     * @return MWSClient
+     * @return Result
      * @author HuuLe
      */
     public function getFeedSubmissionCount($parameters)
     {
-        // TODO: Implement getFeedSubmissionCount() method.
-        return $this->cloneThis();
+        $result = new Result();
+        try {
+            $request = $this->makeRequest($parameters);
+            if ($request instanceof \MarketplaceWebService_Model_GetFeedSubmissionCountRequest) {
+                $response = $this->client->getFeedSubmissionCount($request);
+                $result->setResponse($response);
+                if ($response->isSetGetFeedSubmissionCountResult()) {
+                    $getFeedSubmissionCountResult = $response->getGetFeedSubmissionCountResult();
+                    if ($getFeedSubmissionCountResult instanceof \MarketplaceWebService_Model_GetFeedSubmissionCountResult &&
+                        $getFeedSubmissionCountResult->isSetCount())
+                        $result->setData($getFeedSubmissionCountResult->getCount());
+                }
+            } else
+                $result->setWrongRequestTypeError();
+        } catch (\MarketplaceWebService_Exception $ex) {
+            $result->setError($ex);
+        }
+        return $result;
     }
 
     /**
-     * Get Request Report function
-     * @param array $parameters
-     * @return MWSClient
+     * Get Feed Submission Result function
+     * @param string|array $parameters
+     * @return Result
      * @author HuuLe
      */
     public function getFeedSubmissionResult($parameters)
     {
-        // TODO: Implement getFeedSubmissionResult() method.
-        return $this->cloneThis();
+        $result = new Result();
+        try {
+            // Feed submission ID only
+            if (is_numeric($parameters))
+                $parameters = [
+                    'FeedSubmissionId' => $parameters
+                ];
+            $request = $this->makeRequest($parameters);
+            if ($request instanceof \MarketplaceWebService_Model_GetFeedSubmissionResultRequest) {
+                if (!$request->isFeedSubmissionResult())
+                    $request->setFeedSubmissionResult(@fopen('php://memory', 'rw+'));
+                $response = $this->client->getFeedSubmissionResult($request);
+                $result->setResponse($response);
+                if ($response->isSetGetFeedSubmissionResultResult()) {
+                    $getFeedSubmissionResult = $response->getGetFeedSubmissionResultResult();
+                    if ($getFeedSubmissionResult instanceof \MarketplaceWebService_Model_GetFeedSubmissionResultResult) {
+                        if ($getFeedSubmissionResult->isSetContentMd5())
+                            $getFeedSubmissionResult->getContentMd5();
+                    }
+                }
+                // Get stream data to write file
+                $reportResource = $request->getFeedSubmissionResult();
+                if (is_resource($reportResource)) {
+                    $xmlData = stream_get_contents($reportResource);
+                    $result->setData($this->convertXMLToArray($xmlData));
+                    @fclose($reportResource);
+                }
+            }
+        } catch (\MarketplaceWebService_Exception $ex) {
+            $result->setError($ex);
+        }
+        return $result;
     }
 
     /**
      * Get Request Report function
      * @param array $parameters
-     * @return MWSClient
+     * @return Result
      * @author HuuLe
      */
     public function submitFeed($parameters)
     {
-        // TODO: Implement submitFeed() method.
-        return $this->cloneThis();
+        $result = new Result();
+        try {
+            if (!empty($parameters['Feed'])) {
+                $feed = $parameters['Feed'];
+                unset($parameters['Feed']);
+            } else {
+                if (!empty($parameters['FeedType']) && !empty($parameters['FeedData'])) {
+                    // Generate Feed by Type and Data, coming soon...
+                    $feedData = $parameters['FeedData'];
+                    unset($parameters['FeedData']);
+                } else {
+                    $missingParameters = [];
+                    if (empty($parameters['FeedType']))
+                        $missingParameters[] = 'FeedType';
+                    if (empty($parameters['FeedData']))
+                        $missingParameters[] = 'FeedData';
+                    $result->throwError('Missing ' . join(', ', $missingParameters));
+                }
+            }
+            if (isset($feed)) {
+                $request = $this->makeRequest($parameters);
+                if ($request instanceof \MarketplaceWebService_Model_SubmitFeedRequest) {
+                    $feedHandle = @fopen('php://temp', 'rw+');
+                    fwrite($feedHandle, $feed);
+                    rewind($feedHandle);
+                    if (!$request->isSetFeedContent())
+                        $request->setFeedContent($feedHandle);
+                    if (!$request->isSetContentMd5())
+                        $request->setContentMd5(base64_encode(md5(stream_get_contents($feedHandle), true)));
+                    $response = $this->client->submitFeed($request);
+                    $result->setResponse($response);
+                    if ($response->isSetSubmitFeedResult()) {
+                        $submitFeedResult = $response->getSubmitFeedResult();
+                        if ($submitFeedResult instanceof \MarketplaceWebService_Model_SubmitFeedResult &&
+                            $submitFeedResult->isSetFeedSubmissionInfo()) {
+                            $result->setData($this->toArray($submitFeedResult->getFeedSubmissionInfo()));
+                        }
+                    }
+                } else
+                    $result->setWrongRequestTypeError();
+            } else
+                $result->setMissingFeedDataError();
+        } catch (\MarketplaceWebService_Exception $ex) {
+            $result->setError($ex);
+        }
+        return $result;
     }
 
     /**
      * Get Request Report function
      * @param array $parameters
-     * @return MWSClient
+     * @return Result
      * @author HuuLe
      */
     public function cancelFeedSubmissions($parameters)
     {
-        // TODO: Implement cancelFeedSubmissions() method.
-        return $this->cloneThis();
+        $result = new Result();
+        try {
+            $request = $this->makeRequest($parameters);
+            if ($request instanceof \MarketplaceWebService_Model_CancelFeedSubmissionsRequest) {
+                $response = $this->client->cancelFeedSubmissions($request);
+                if ($response->isSetCancelFeedSubmissionsResult()) {
+                    $cancelFeedSubmissionsResult = $response->getCancelFeedSubmissionsResult();
+                    if ($cancelFeedSubmissionsResult instanceof \MarketplaceWebService_Model_CancelFeedSubmissionsResult) {
+                        $data = [];
+                        if ($cancelFeedSubmissionsResult->isSetCount())
+                            $data['Count'] = $cancelFeedSubmissionsResult->getCount();
+                        if ($cancelFeedSubmissionsResult->isSetFeedSubmissionInfo())
+                            $data['FeedSubmissionInfo'] = $this->toArray($cancelFeedSubmissionsResult->getFeedSubmissionInfoList());
+                        $result->setData($data);
+                    }
+                }
+            } else
+                $result->setWrongRequestTypeError();
+        } catch (\MarketplaceWebService_Exception $ex) {
+            $result->setError($ex);
+        }
+        return $result;
     }
 }

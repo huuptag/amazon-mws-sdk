@@ -36,6 +36,16 @@ trait Errors
      */
     function setMissingNextTokenError()
     {
-        $this->throwError('Wrong request type');
+        $this->throwError('Missing NextToken parameter');
+    }
+
+    /**
+     * Set Missing Feed Data Error function
+     * @return void
+     * @author HuuLe
+     */
+    function setMissingFeedDataError()
+    {
+        $this->throwError('Missing Feed parameter');
     }
 }

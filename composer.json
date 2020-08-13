@@ -13,7 +13,9 @@
     "prefer-stable": true,
     "require": {
         "ext-iconv": "*",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-simplexml": "*",
+        "ext-libxml": "*"
     },
     "autoload": {
         "psr-4": {

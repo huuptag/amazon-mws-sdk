@@ -20,11 +20,14 @@ class Constant
     const DEFAULT_DATE_FORMAT = 'Y-m-d H:i:s';
 
     // Status
-    const STATUS_SUBMITTED      = '_SUBMITTED_';
-    const STATUS_IN_PROGRESS    = '_IN_PROGRESS_';
-    const STATUS_CANCELLED      = '_CANCELLED_';
-    const STATUS_DONE           = '_DONE_';
-    const STATUS_DONE_NO_DATA   = '_DONE_NO_DATA_';
+    const STATUS_SUBMITTED                      = '_SUBMITTED_';
+    const STATUS_IN_PROGRESS                    = '_IN_PROGRESS_';
+    const STATUS_CANCELLED                      = '_CANCELLED_';
+    const STATUS_DONE                           = '_DONE_';
+    const STATUS_DONE_NO_DATA                   = '_DONE_NO_DATA_';
+    const STATUS_IN_SAFETY_NET                  = '_IN_SAFETY_NET_';
+    const STATUS_UNCONFIRMED                    = '_UNCONFIRMED_';
+    const STATUS_AWAITING_ASYNCHRONOUS_REPLY    = '_AWAITING_ASYNCHRONOUS_REPLY_';
 
     // Schedule
     const SCHEDULE_15_MINUTES_  = '_15_MINUTES_';

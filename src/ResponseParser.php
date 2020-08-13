@@ -6,6 +6,8 @@
 
 namespace HuuLe\AmazonSDK;
 
+use SimpleXMLElement;
+
 trait ResponseParser
 {
     /**
@@ -41,7 +43,7 @@ trait ResponseParser
 
     /**
      * Parse Item function
-     * @param $item
+     * @param object $item
      * @return array
      * @author HuuLe
      */
@@ -59,5 +61,33 @@ trait ResponseParser
             }
         }
         return $result;
+    }
+
+    /**
+     * Convert XML To Array function
+     * @param string $xmlString
+     * @return array
+     * @author HuuLe
+     */
+    public function convertXMLToArray($xmlString)
+    {
+        $result = [];
+        if ($xmlString) {
+            $xml = simplexml_load_string($xmlString, "SimpleXMLElement", LIBXML_NOCDATA);
+            $result = json_decode(json_encode($xml), true);
+        }
+        return $result;
+    }
+
+    /**
+     * Convert XML To JSON function
+     * @param string $xmlString
+     * @param int $options
+     * @return false|string
+     * @author HuuLe
+     */
+    public function convertXMLToJSON($xmlString, $options = null)
+    {
+        return json_encode($this->convertXMLToArray($xmlString), $options);
     }
 }
