@@ -672,7 +672,7 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
                 $reportResource = $request->getFeedSubmissionResult();
                 if (is_resource($reportResource)) {
                     $xmlData = stream_get_contents($reportResource);
-                    $result->setData($this->convertXMLToArray($xmlData));
+                    $result->setData($xmlData);
                     @fclose($reportResource);
                 }
             }
