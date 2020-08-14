@@ -10,13 +10,11 @@ trait Errors
 {
     function throwError($message)
     {
-        if (Constant::MWS_DEBUG) {
-            $requestName = '';
-            $caller = debug_backtrace();
-            if (!empty($caller[1]['function']))
-                $requestName = ucfirst($caller[1]['function']);
-            $this->setError(new \Exception($message . ($requestName ? ' for ' . $requestName . ' function' : '') . '.'));
-        }
+        $requestName = '';
+        $caller = debug_backtrace();
+        if (!empty($caller[1]['function']))
+            $requestName = ucfirst($caller[1]['function']);
+        $this->setError(new \Exception($message . ($requestName ? ' for ' . $requestName . ' function' : '') . '.'));
     }
 
     /**

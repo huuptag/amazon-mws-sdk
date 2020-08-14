@@ -8,18 +8,17 @@ namespace HuuLe\AmazonSDK;
 
 class Constant
 {
-    const MWS_APPLICATION_NAME = 'HuuLe Amazon SDK';
-    const MWS_APPLICATION_VERSION = '1.0';
     const MWS_SERVICE_URL = 'https://mws.amazonservices.com';
+    const MWS_ORDER_SERVICE_URL = 'https://mws.amazonservices.com/Orders/2013-09-01';
+    const MWS_APPLICATION_NAME = 'Amazon SDK';
+    const MWS_APPLICATION_VERSION = '1.0';
     const MWS_DATE_FORMAT = 'Y-m-d\TH:i:s\Z';
-    const MWS_DEFAULT_TIMEZONE = 'UTC';
-
-    const MWS_DEBUG = true;
 
     // Response Parser: default date time format
-    const DEFAULT_DATE_FORMAT = 'Y-m-d H:i:s';
+    const DEFAULT_TIMEZONE = 'UTC';
+    const DEFAULT_DATETIME_FORMAT = 'Y-m-d H:i:s';
 
-    // Status
+    // Status enum
     const STATUS_SUBMITTED                      = '_SUBMITTED_';
     const STATUS_IN_PROGRESS                    = '_IN_PROGRESS_';
     const STATUS_CANCELLED                      = '_CANCELLED_';
@@ -29,7 +28,7 @@ class Constant
     const STATUS_UNCONFIRMED                    = '_UNCONFIRMED_';
     const STATUS_AWAITING_ASYNCHRONOUS_REPLY    = '_AWAITING_ASYNCHRONOUS_REPLY_';
 
-    // Schedule
+    // Schedule enum
     const SCHEDULE_15_MINUTES_  = '_15_MINUTES_';
     const SCHEDULE_30_MINUTES_  = '_30_MINUTES_';
     const SCHEDULE_1_HOUR_      = '_1_HOUR_';

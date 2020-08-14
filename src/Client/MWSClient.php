@@ -6,8 +6,14 @@
 
 namespace HuuLe\AmazonSDK\Client;
 
+use HuuLe\AmazonSDK\Constant;
 use HuuLe\AmazonSDK\Result;
 
+/**
+ * Class MWSClient
+ * @package HuuLe\AmazonSDK\Client
+ * @author HuuLe
+ */
 class MWSClient extends Client implements \MarketplaceWebService_Interface
 {
     protected $client;
@@ -17,9 +23,16 @@ class MWSClient extends Client implements \MarketplaceWebService_Interface
      * @param string $wmsAccessKeyID
      * @param string $wmsSecretAccessKey
      * @param array $config
+     * Config parameters:
+     * - ServiceURL:    string(default: https://mws.amazonservices.com)
+     * - ProxyHost:     string
+     * - ProxyPort:     int
+     * - MaxErrorRetry: int
      */
     public function __construct($wmsAccessKeyID, $wmsSecretAccessKey, $config = [])
     {
+        if (empty($config['ServiceURL']))
+            $config['ServiceURL'] = Constant::MWS_SERVICE_URL;
         parent::__construct(\MarketplaceWebService_Client::class, $wmsAccessKeyID, $wmsSecretAccessKey, $config);
         $this->client = new \MarketplaceWebService_Client(
             $this->getMwsAccessKeyID(),

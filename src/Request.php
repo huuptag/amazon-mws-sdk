@@ -15,7 +15,6 @@ trait Request
     /**
      * Make Amazon MWS Request
      * @param array $parameters
-     * @param callable $callback
      * @return object|void
      * @author HuuLe
      */
@@ -25,12 +24,20 @@ trait Request
         if (!empty($caller[1]['function'])) {
             $requestName = ucfirst($caller[1]['function']);
             $requestClass = $this->getRequestClass($requestName);
-            if (empty($parameters['Merchant']) && $this->getMerchant())
-                $parameters['Merchant'] = $this->getMerchant();
-            if ($this->getMWSAuthToken())
-                $parameters['MWSAuthToken'] = $this->getMWSAuthToken();
-            if (class_exists($requestClass))
-                return new $requestClass($parameters);
+            if (class_exists($requestClass)) {
+                $requestObj = new $requestClass($parameters);
+                if ($sellerID = $this->getSellerID()) {
+                    if (method_exists($requestObj, 'setMerchant'))
+                        $requestObj->setMerchant($sellerID);
+                    if (method_exists($requestObj, 'setSellerId'))
+                        $requestObj->setSellerId($sellerID);
+                }
+                if (($MWSAuthToken = $this->getMWSAuthToken()) && method_exists($requestObj, 'setMWSAuthToken'))
+                    $requestObj->setMWSAuthToken($MWSAuthToken);
+                if (($marketplaceID = $this->getMarketplaceID()) && method_exists($requestObj, 'setMarketplaceId'))
+                    $requestObj->setMarketplaceId($marketplaceID);
+                return $requestObj;
+            }
         }
         return;
     }

@@ -6,7 +6,7 @@
 
 namespace HuuLe\AmazonSDK;
 
-use SimpleXMLElement;
+trait_exists(Helpers::class, true);
 
 trait ResponseParser
 {
@@ -55,9 +55,15 @@ trait ResponseParser
             if (strpos($method, 'isSet') !== false && method_exists($item, $method)) {
                 $field = str_replace('isSet', '', $method);
                 $fieldValue = $item->{$method}() ? $item->{'get' . $field}() : '';
-                if ($fieldValue instanceof \DateTime)
-                    $fieldValue = $fieldValue->format(Constant::DEFAULT_DATE_FORMAT);
-                $result[$field] = $fieldValue;
+                if ((is_object($fieldValue) || $fieldValue instanceof \stdClass) && !$fieldValue instanceof \DateTime)
+                    $result[$field] = $this->parseItem($fieldValue);
+                else {
+                    if ($fieldValue instanceof \DateTime)
+                        $fieldValue = $fieldValue->format($this->getDefaultDateFormat());
+                    if (is_string($fieldValue) && $this->checkFormattedDateTime($fieldValue))
+                        $fieldValue = $this->convertDateTimeDefaultFormat($fieldValue);
+                    $result[$field] = $fieldValue;
+                }
             }
         }
         return $result;
