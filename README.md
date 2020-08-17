@@ -2,7 +2,7 @@
 
 ##### Install SDK by composer:
 
-<code>composer require huule\\amazon-sdk dev-master</code>
+<code>composer require huule\\amazon-sdk</code>
 
 ##### Or setup local package:
 
