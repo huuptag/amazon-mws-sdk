@@ -29,4 +29,3 @@
 - Run command ```composer install```
 
 - Setup your configuration
-
