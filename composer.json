@@ -9,8 +9,6 @@
             "email": "huuptag@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "require": {
         "ext-iconv": "*",
         "ext-json": "*",
