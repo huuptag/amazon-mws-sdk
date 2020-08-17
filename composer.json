@@ -1,5 +1,5 @@
 {
-    "name": "huule/amazon-sdk",
+    "name": "huule/amazon-mws-sdk",
     "description": "Amazon SDK",
     "type": "library",
     "license": "MIT",
