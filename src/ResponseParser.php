@@ -6,6 +6,9 @@
 
 namespace HuuLe\AmazonSDK;
 
+use DOMElement;
+use DOMNode;
+
 trait_exists(Helpers::class, true);
 
 trait ResponseParser
@@ -13,17 +16,18 @@ trait ResponseParser
     /**
      * To Array function
      * @param array|object $dataList
+     * @param bool $skipEmpty
      * @return array
      * @author HuuLe
      */
-    public function toArray($dataList)
+    public function toArray($dataList, $skipEmpty = false)
     {
         $result = [];
         if (is_object($dataList))
-            $result = $this->parseItem($dataList);
+            $result = $this->parseItem($dataList, $skipEmpty);
         elseif (is_array($dataList)) {
             foreach ($dataList as $item) {
-                $result[] = $this->parseItem($item);
+                $result[] = $this->parseItem($item, $skipEmpty);
             }
         }
         return $result;
@@ -43,26 +47,58 @@ trait ResponseParser
 
     /**
      * Parse Item function
-     * @param object $item
+     * @param object|mixed $item
+     * @param bool $skipEmpty
      * @return array
      * @author HuuLe
      */
-    public function parseItem($item)
+    public function parseItem($item, $skipEmpty = false)
     {
         $result = [];
-        $methods = get_class_methods($item);
-        foreach ($methods as $method) {
-            if (strpos($method, 'isSet') !== false && method_exists($item, $method)) {
-                $field = str_replace('isSet', '', $method);
-                $fieldValue = $item->{$method}() ? $item->{'get' . $field}() : '';
-                if ((is_object($fieldValue) || $fieldValue instanceof \stdClass) && !$fieldValue instanceof \DateTime)
-                    $result[$field] = $this->parseItem($fieldValue);
-                else {
-                    if ($fieldValue instanceof \DateTime)
-                        $fieldValue = $fieldValue->format($this->getDefaultDateFormat());
-                    if (is_string($fieldValue) && $this->checkFormattedDateTime($fieldValue))
-                        $fieldValue = $this->convertDateTimeDefaultFormat($fieldValue);
-                    $result[$field] = $fieldValue;
+        // Check object type DOMElement
+        if ($item instanceof \DOMElement)
+            $result = $this->convertDOMElementToArray($item);
+        else {
+            $methods = get_class_methods($item);
+            foreach ($methods as $method) {
+                if (strpos($method, 'isSet') !== false && method_exists($item, $method)) {
+                    $field = str_replace('isSet', '', $method);
+                    $singularField = substr($field, 0, strlen($field) - 1);
+                    $getMethod = 'get' . $field;
+                    // Check skip empty with isset method
+                    if ($skipEmpty && !$item->{$method}())
+                        continue;
+                    // Run normally
+                    if (method_exists($item, $getMethod)) {
+                        $fieldValue = $item->{$getMethod}();
+                        if (is_array($fieldValue) && !$this->isAssoc($fieldValue) && $this->isObject($fieldValue[0])) {
+                            $subResult = [];
+                            foreach ($fieldValue as $childItem) {
+                                $subResult[] = $this->parseItem($childItem, $field);
+                            }
+                            $result[$field] = $subResult;
+                        } else
+                            // Check value type object
+                            if ($this->isObject($fieldValue) && !($fieldValue instanceof \DateTime)) {
+                                if ($fieldValue instanceof \DOMElement) {
+                                    $result[$field] = $this->convertDOMElementToArray($fieldValue);
+                                } else {
+                                    // Remove singular sub result when empty
+                                    $subResult = $this->parseItem($fieldValue, $field);
+                                    if (is_array($subResult) && count($subResult) == 1 && isset($subResult[$singularField]))
+                                        $subResult = $subResult[$singularField];
+                                    $result[$field] = $subResult;
+                                }
+                            } else {
+                                // Check datetime value
+                                if ($fieldValue instanceof \DateTime)
+                                    $fieldValue = $fieldValue->format($this->getDefaultDateFormat());
+                                // Convert to readable datetime format
+                                if (is_string($fieldValue) && $this->checkFormattedDateTime($fieldValue))
+                                    $fieldValue = $this->convertDateTimeDefaultFormat($fieldValue);
+                                $result[$field] = $fieldValue;
+                            }
+                    }
                 }
             }
         }
@@ -75,7 +111,8 @@ trait ResponseParser
      * @return array
      * @author HuuLe
      */
-    public function convertXMLToArray($xmlString)
+    public
+    function convertXMLToArray($xmlString)
     {
         $result = [];
         if ($xmlString) {
@@ -92,8 +129,30 @@ trait ResponseParser
      * @return false|string
      * @author HuuLe
      */
-    public function convertXMLToJSON($xmlString, $options = null)
+    public
+    function convertXMLToJSON($xmlString, $options = null)
     {
         return json_encode($this->convertXMLToArray($xmlString), $options);
+    }
+
+    /**
+     * Convert DOM Element To Array function
+     * @param DOMElement|DOMNode $domElement
+     * @return array
+     * @author HuuLe
+     */
+    function convertDOMElementToArray($domElement)
+    {
+        $result = [];
+        if ($domElement->hasChildNodes()) {
+            foreach (range(0, $domElement->childNodes->length - 1) as $index) {
+                $childNode = $domElement->childNodes->item($index);
+                if ($childNode->hasChildNodes() && $childNode->childNodes->length > 1)
+                    $result[$childNode->localName] = $this->convertDOMElementToArray($childNode);
+                else
+                    $result[$childNode->localName] = $childNode->nodeValue;
+            }
+        }
+        return $result;
     }
 }

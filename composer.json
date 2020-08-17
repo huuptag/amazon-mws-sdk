@@ -15,7 +15,8 @@
         "ext-iconv": "*",
         "ext-json": "*",
         "ext-simplexml": "*",
-        "ext-libxml": "*"
+        "ext-libxml": "*",
+        "ext-dom": "*"
     },
     "autoload": {
         "psr-4": {

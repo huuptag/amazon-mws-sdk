@@ -72,4 +72,43 @@ trait Helpers
     {
         return array_keys($arr) !== range(0, count($arr) - 1);
     }
+
+    /**
+     * Is Object Or Object Class function
+     * @param object|mixed $object
+     * @return bool
+     * @author HuuLe
+     */
+    function isObject($object)
+    {
+        return is_object($object) || $object instanceof \stdClass;
+    }
+
+    /**
+     * Remove Nested Level function
+     * @param array $arrMultiLevel
+     * @param array $result
+     * @return array
+     * @author HuuLe
+     */
+    function removeNestedLevel($arrMultiLevel, $result = [])
+    {
+        if (is_array($arrMultiLevel)) {
+            if (!$this->isAssoc($arrMultiLevel)) {
+                foreach ($arrMultiLevel as $index => $item) {
+                    $result[$index] = $this->removeNestedLevel($item);
+                }
+            } else {
+                foreach ($arrMultiLevel as $field => $value) {
+                    if (is_array($value)) {
+                        $arrItem = $arrMultiLevel[$field];
+                        unset($arrMultiLevel[$field]);
+                        $result = $this->removeNestedLevel($arrItem, $result);
+                    }
+                }
+                array_unshift($result, $arrMultiLevel);
+            }
+        }
+        return $result;
+    }
 }

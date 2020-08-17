@@ -6,9 +6,11 @@
 
 namespace HuuLe\AmazonSDK;
 
+trait_exists(Helpers::class, true);
+
 class Result
 {
-    use Errors;
+    use Errors, Helpers;
 
     private $data;
     private $response;
@@ -117,5 +119,19 @@ class Result
     public function hasError()
     {
         return !empty($this->error);
+    }
+
+    /**
+     * To Flatten Array function
+     * @return self
+     * @author HuuLe
+     */
+    public function toFlattenArray()
+    {
+        if ($this->hasData()) {
+            $arrData = $this->getData();
+            $this->setData($this->removeNestedLevel($arrData));
+        }
+        return $this;
     }
 }

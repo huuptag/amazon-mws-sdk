@@ -99,14 +99,8 @@ class MWSOrderClient extends Client implements \MarketplaceWebServiceOrders_Inte
                 if ($response->isSetListOrdersResult()) {
                     $listOrdersResult = $response->getListOrdersResult();
                     if ($listOrdersResult instanceof \MarketplaceWebServiceOrders_Model_ListOrdersResult) {
-                        $data = [];
                         if ($listOrdersResult->isSetOrders())
-                            $data['Orders'] = $this->toArray($listOrdersResult->getOrders());
-                        if ($listOrdersResult->isSetCreatedBefore())
-                            $data['CreatedBefore'] = $this->convertDateTimeDefaultFormat($listOrdersResult->getCreatedBefore());
-                        if ($listOrdersResult->isSetLastUpdatedBefore())
-                            $data['LastUpdatedBefore'] = $this->convertDateTimeDefaultFormat($listOrdersResult->getLastUpdatedBefore());
-                        $result->setData($data);
+                            $result->setData($this->toArray($listOrdersResult->getOrders()));
                         if ($listOrdersResult->isSetNextToken())
                             $result->setNextToken($listOrdersResult->getNextToken());
                     }
@@ -143,14 +137,8 @@ class MWSOrderClient extends Client implements \MarketplaceWebServiceOrders_Inte
                     if ($response->isSetListOrdersByNextTokenResult()) {
                         $listOrdersByNextTokenResult = $response->getListOrdersByNextTokenResult();
                         if ($listOrdersByNextTokenResult instanceof \MarketplaceWebServiceOrders_Model_ListOrdersByNextTokenResult) {
-                            $data = [];
                             if ($listOrdersByNextTokenResult->isSetOrders())
-                                $data['Orders'] = $this->toArray($listOrdersByNextTokenResult->getOrders());
-                            if ($listOrdersByNextTokenResult->isSetCreatedBefore())
-                                $data['CreatedBefore'] = $this->convertDateTimeDefaultFormat($listOrdersByNextTokenResult->getCreatedBefore());
-                            if ($listOrdersByNextTokenResult->isSetLastUpdatedBefore())
-                                $data['LastUpdatedBefore'] = $this->convertDateTimeDefaultFormat($listOrdersByNextTokenResult->getLastUpdatedBefore());
-                            $result->setData($data);
+                                $result->setData($this->toArray($listOrdersByNextTokenResult->getOrders()));
                             if ($listOrdersByNextTokenResult->isSetNextToken())
                                 $result->setNextToken($listOrdersByNextTokenResult->getNextToken());
                         }
@@ -258,6 +246,7 @@ class MWSOrderClient extends Client implements \MarketplaceWebServiceOrders_Inte
                     $request = $this->makeRequest($parameters);
                 if ($request instanceof \MarketplaceWebServiceOrders_Model_ListOrderItemsByNextTokenRequest) {
                     $response = $this->client->listOrderItemsByNextToken($request);
+                    $result->setResponse($response);
                     if ($response->isSetListOrderItemsByNextTokenResult()) {
                         $listOrderItemsResult = $response->getListOrderItemsByNextTokenResult();
                         if ($listOrderItemsResult instanceof \MarketplaceWebServiceOrders_Model_ListOrderItemsByNextTokenResult) {
