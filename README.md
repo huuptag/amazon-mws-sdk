@@ -9,6 +9,15 @@
 - [x] Reports
 - [x] Orders
 - [x] Products
+- [ ] Finances
+- [ ] Fulfillment Inbound Shipment
+- [ ] Fulfillment Inventory
+- [ ] Fulfillment Outbound Shipment
+- [ ] Merchant Fulfillment
+- [ ] Recommendations
+- [ ] Sellers
+- [ ] Subscriptions
+- [ ] Push Notifications Schemas
 
 ##### Install SDK
 
