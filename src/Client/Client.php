@@ -15,18 +15,6 @@ use HuuLe\AmazonSDK\Helpers;
 use HuuLe\AmazonSDK\Request;
 use HuuLe\AmazonSDK\ResponseParser;
 
-function dd(...$params)
-{
-    $caller = debug_backtrace();
-    foreach ($params as $param) {
-        echo "<pre>";
-        print_r($param);
-        echo "</pre>";
-    }
-    echo "<div><strong>Called from</strong> " . $caller[0]['file'] . " in line " . $caller[0]['line'] . '</div>';
-    die;
-}
-
 class Client
 {
     use Request, ResponseParser, Helpers, Errors;
