@@ -111,4 +111,22 @@ trait Helpers
         }
         return $result;
     }
+
+    /**
+     * Debug data function
+     * @param mixed ...$params
+     * @return void
+     * @author HuuLe
+     */
+    function dd(...$params)
+    {
+        $caller = debug_backtrace();
+        foreach ($params as $param) {
+            echo "<pre>";
+            print_r($param);
+            echo "</pre>";
+        }
+        echo "<div><strong>Called from</strong> " . $caller[0]['file'] . " in line " . $caller[0]['line'] . '</div>';
+        die;
+    }
 }
