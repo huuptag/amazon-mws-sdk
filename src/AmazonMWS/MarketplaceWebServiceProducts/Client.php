@@ -1,12 +1,12 @@
 <?php
 /*******************************************************************************
  * Copyright 2009-2018 Amazon Services. All Rights Reserved.
- * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * Licensed under the Apache License, Version 2.0 (the "License");
  *
- * You may not use this file except in compliance with the License. 
+ * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at: http://aws.amazon.com/apache2.0
- * This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
- * CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+ * This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  *******************************************************************************
  * PHP Version 5
@@ -896,9 +896,13 @@ class MarketplaceWebServiceProducts_Client implements MarketplaceWebServiceProdu
      */
     public function __construct($awsAccessKeyId, $awsSecretAccessKey, $applicationName, $applicationVersion, $config = null)
     {
-        iconv_set_encoding('output_encoding', 'UTF-8');
-        iconv_set_encoding('input_encoding', 'UTF-8');
-        iconv_set_encoding('internal_encoding', 'UTF-8');
+        if (PHP_VERSION_ID < 50600) {
+            iconv_set_encoding('input_encoding', 'UTF-8');
+            iconv_set_encoding('output_encoding', 'UTF-8');
+            iconv_set_encoding('internal_encoding', 'UTF-8');
+        } else {
+            ini_set('default_charset', 'UTF-8');
+        }
 
         $this->_awsAccessKeyId = $awsAccessKeyId;
         $this->_awsSecretAccessKey = $awsSecretAccessKey;
@@ -915,7 +919,7 @@ class MarketplaceWebServiceProducts_Client implements MarketplaceWebServiceProdu
             $attributes = array ();
         }
 
-        $this->_config['UserAgent'] = 
+        $this->_config['UserAgent'] =
             $this->constructUserAgentHeader($applicationName, $applicationVersion, $attributes);
     }
 
@@ -928,7 +932,7 @@ class MarketplaceWebServiceProducts_Client implements MarketplaceWebServiceProdu
             throw new InvalidArgumentException('$applicationVersion cannot be null');
         }
 
-        $userAgent = 
+        $userAgent =
             $this->quoteApplicationName($applicationName)
             . '/'
             . $this->quoteApplicationVersion($applicationVersion);
@@ -1135,7 +1139,7 @@ class MarketplaceWebServiceProducts_Client implements MarketplaceWebServiceProdu
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $query);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $allHeadersStr);
-        curl_setopt($ch, CURLOPT_HEADER, true); 
+        curl_setopt($ch, CURLOPT_HEADER, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         if ($config['ProxyHost'] != null && $config['ProxyPort'] != -1)
         {
@@ -1160,11 +1164,11 @@ class MarketplaceWebServiceProducts_Client implements MarketplaceWebServiceProdu
         curl_close($ch);
         return $this->_extractHeadersAndBody($response);
     }
-    
+
     /**
      * This method will attempt to extract the headers and body of our response.
      * We need to split the raw response string by 2 'CRLF's.  2 'CRLF's should indicate the separation of the response header
-     * from the response body.  However in our case we have some circumstances (certain client proxies) that result in 
+     * from the response body.  However in our case we have some circumstances (certain client proxies) that result in
      * multiple responses concatenated.  We could encounter a response like
      *
      * HTTP/1.1 100 Continue
@@ -1184,22 +1188,22 @@ class MarketplaceWebServiceProducts_Client implements MarketplaceWebServiceProdu
         //First split by 2 'CRLF'
         $responseComponents = preg_split("/(?:\r?\n){2}/", $response, 2);
         $body = null;
-        for ($count = 0; 
-                $count < count($responseComponents) && $body == null; 
+        for ($count = 0;
+                $count < count($responseComponents) && $body == null;
                 $count++) {
-            
+
             $headers = $responseComponents[$count];
             $responseStatus = $this->_extractHttpStatusCode($headers);
-            
-            if($responseStatus != null && 
+
+            if($responseStatus != null &&
                     $this->_httpHeadersHaveContent($headers)){
-                
+
                 $responseHeaderMetadata = $this->_extractResponseHeaderMetadata($headers);
                 //The body will be the next item in the responseComponents array
                 $body = $responseComponents[++$count];
             }
         }
-        
+
         //If the body is null here then we were unable to parse the response and will throw an exception
         if($body == null){
             require_once (dirname(__FILE__) . '/Exception.php');
@@ -1209,11 +1213,11 @@ class MarketplaceWebServiceProducts_Client implements MarketplaceWebServiceProdu
         }
 
         return array(
-                'Status' => $responseStatus, 
-                'ResponseBody' => $body, 
+                'Status' => $responseStatus,
+                'ResponseBody' => $body,
                 'ResponseHeaderMetadata' => $responseHeaderMetadata);
     }
-    
+
     /**
      * parse the status line of a header string for the proper format and
      * return the status code
@@ -1223,14 +1227,14 @@ class MarketplaceWebServiceProducts_Client implements MarketplaceWebServiceProdu
      * returns String statusCode or null if the status line can't be parsed
      */
     private function _extractHttpStatusCode($headers){
-    	$statusCode = null; 
+    	$statusCode = null;
         if (1 === preg_match("/(\\S+) +(\\d+) +([^\n\r]+)(?:\r?\n|\r)/", $headers, $matches)) {
         	//The matches array [entireMatchString, protocol, statusCode, the rest]
-            $statusCode = $matches[2]; 
+            $statusCode = $matches[2];
         }
         return $statusCode;
     }
-    
+
     /**
      * Tries to determine some valid headers indicating this response
      * has content.  In this case
@@ -1240,7 +1244,7 @@ class MarketplaceWebServiceProducts_Client implements MarketplaceWebServiceProdu
         return (1 === preg_match("/[cC]ontent-[lL]ength: +(?:\\d+)(?:\\r?\\n|\\r|$)/", $headers) ||
                 1 === preg_match("/Transfer-Encoding: +(?!identity[\r\n;= ])(?:[^\r\n]+)(?:\r?\n|\r|$)/i", $headers));
     }
-    
+
     /**
     *  extract a ResponseHeaderMetadata object from the raw headers
     */
@@ -1265,7 +1269,7 @@ class MarketplaceWebServiceProducts_Client implements MarketplaceWebServiceProdu
                 }
             }
         }
- 
+
         require_once(dirname(__FILE__) . '/Model/ResponseHeaderMetadata.php');
         return new MarketplaceWebServiceProducts_Model_ResponseHeaderMetadata(
           $headers['x-mws-request-id'],
@@ -1296,7 +1300,7 @@ class MarketplaceWebServiceProducts_Client implements MarketplaceWebServiceProdu
             $delay = (int) (pow(4, $retries) * 100000);
             usleep($delay);
             return true;
-        } 
+        }
         return false;
     }
 
