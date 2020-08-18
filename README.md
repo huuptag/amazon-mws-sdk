@@ -57,6 +57,6 @@ var_dump($result);
 ---
 **!!! Important**
 
-:warning: You are enable SSL for your host or localhost.
+:warning: You must enable SSL for your host or localhost.
 
 ---
