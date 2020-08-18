@@ -62,7 +62,7 @@
 - Setup your configuration
 
 ###### Test SDK
-- Create config file
+- Create config.php file
 ```
 $config = [
     // Amazon MWS configs
